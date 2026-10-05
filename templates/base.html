@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f8f1">
+  <title>{% block title %}Shop fresh{% endblock %} | Good Basket</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='css/shop.css') }}">
+</head>
+<body>
+  <header class="market-header">
+    <div class="market-nav">
+      <a class="brand" href="/" aria-label="Good Basket home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M5 8h14l-1 13H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3M9 13c1.5 2 4.5 2 6 0"/></svg>
+        </span>
+        <span>good<span class="brand-light">basket</span></span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a class="nav-shop {{ 'is-active' if request.url.path == '/' }}" href="/">Shop</a>
+        <a class="cart-link {{ 'is-active' if request.url.path == '/cart' }}" href="/cart">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.2a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>
+          <span>Basket</span><span class="cart-count">{{ cart_count }}</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer class="market-footer">
+    <div class="footer-inner">
+      <div class="footer-about">
+        <a class="brand footer-brand" href="/">good<span class="brand-light">basket</span></a>
+        <p>Fresh picks, pantry favorites, and everyday staples chosen with care.</p>
+      </div>
+      <nav class="footer-nav" aria-label="Shop by aisle">
+        <h2 class="footer-heading">Shop by aisle</h2>
+        <a href="/?category=Produce#groceries">Produce</a>
+        <a href="/?category=Bakery#groceries">Bakery</a>
+        <a href="/?category=Dairy%20%26%20Eggs#groceries">Dairy &amp; eggs</a>
+        <a href="/?category=Pantry#groceries">Pantry</a>
+      </nav>
+      <div class="footer-basket">
+        <h2 class="footer-heading">Your basket</h2>
+        <p>Everything you picked, all in one place.</p>
+        <a class="footer-basket-link" href="/cart">View basket <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Good Basket · Good food, thoughtfully gathered.</span>
+      <a href="/">Back to shop ↑</a>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% from "_macros.html" import cover %}
+{% block title %}{{ "Edit " ~ book.title if book else "New book" }}{% endblock %}
+
+{% macro field(name, label, type="text", placeholder="", hint="", required=false) -%}
+<label class="field {{ 'has-error' if errors[name] }}">
+  <span class="label">{{ label }}{% if required %} <i>*</i>{% endif %}</span>
+  <input type="{{ type }}" name="{{ name }}" value="{{ form.get(name, '') }}"
+         placeholder="{{ placeholder }}" {{ 'required' if required }} data-preview="{{ name }}">
+  {% if errors[name] %}<span class="error">{{ errors[name] }}</span>
+  {% elif hint %}<span class="hint">{{ hint }}</span>{% endif %}
+</label>
+{%- endmacro %}
+
+{% block content %}
+<a href="{{ '/books/%d' % book.id if book else '/' }}" class="back">← {{ "Back to book" if book else "Back to library" }}</a>
+
+<div class="editor">
+  <form method="post" class="panel form" novalidate>
+    <header class="form-head">
+      <p class="eyebrow">{{ "Editing" if book else "New entry" }}</p>
+      <h1>{{ book.title if book else "Add a book" }}</h1>
+    </header>
+
+    {% if errors %}
+    <div class="alert">Please fix the highlighted fields below.</div>
+    {% endif %}
+
+    {{ field("title", "Title", placeholder="e.g. The Hobbit", required=true) }}
+    {{ field("author", "Author", placeholder="e.g. J. R. R. Tolkien", required=true) }}
+
+    <div class="row">
+      {{ field("genre", "Genre", placeholder="Fantasy") }}
+      {{ field("year", "Year", type="number", placeholder="1937") }}
+      {{ field("pages", "Pages", type="number", placeholder="310") }}
+    </div>
+
+    <div class="field {{ 'has-error' if errors.rating }}">
+      <span class="label">Rating</span>
+      {% set current = (form.get('rating') or '0') | int %}
+      <div class="rating-input">
+        {% for i in range(5, 0, -1) %}
+          <input type="radio" id="r{{ i }}" name="rating" value="{{ i }}" {{ 'checked' if current == i }}>
+          <label for="r{{ i }}" title="{{ i }} star{{ 's' if i > 1 }}">
+            <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 14.9l-5.3 2.7 1-5.8L1.5 7.7l5.9-.9z"/></svg>
+          </label>
+        {% endfor %}
+        <input type="radio" id="r0" name="rating" value="0" {{ 'checked' if current == 0 }}>
+        <label for="r0" class="clear-rating">Clear</label>
+      </div>
+      {% if errors.rating %}<span class="error">{{ errors.rating }}</span>{% endif %}
+    </div>
+
+    {{ field("cover_url", "Cover image URL", type="url", placeholder="https://…",
+             hint="Optional. Leave empty for a generated cover.") }}
+
+    <label class="field {{ 'has-error' if errors.description }}">
+      <span class="label">Description</span>
+      <textarea name="description" rows="7" placeholder="What is it about? What did you think?">{{ form.get('description', '') }}</textarea>
+    </label>
+
+    <div class="form-actions">
+      <a href="{{ '/books/%d' % book.id if book else '/' }}" class="btn">Cancel</a>
+      <button type="submit" class="btn btn-primary">{{ "Save changes" if book else "Add book" }}</button>
+    </div>
+  </form>
+
+  <aside class="preview">
+    <p class="eyebrow">Live preview</p>
+    {{ cover({"id": book.id if book else 7, "title": form.get('title') or 'Untitled',
+              "author": form.get('author') or 'Unknown author', "cover_url": form.get('cover_url', '')}, "large") }}
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Keep the generated cover preview in sync with the form.
+  const preview = document.querySelector(".preview .cover");
+  const val = (n) => document.querySelector(`[name="${n}"]`).value.trim();
+  function render() {
+    const url = val("cover_url");
+    preview.innerHTML = /^https?:\/\//.test(url)
+      ? `<img alt="">`
+      : `<div class="cover-art"><span class="cover-title"></span><span class="cover-rule"></span><span class="cover-author"></span></div>`;
+    if (/^https?:\/\//.test(url)) {
+      preview.querySelector("img").src = url;
+    } else {
+      preview.querySelector(".cover-title").textContent = val("title") || "Untitled";
+      preview.querySelector(".cover-author").textContent = val("author") || "Unknown author";
+    }
+  }
+  document.querySelectorAll("[data-preview]").forEach((el) => el.addEventListener("input", render));
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% macro cover(book, size="") -%}
+<div class="cover {{ size }}" style="--h: {{ (book.id * 47) % 360 }}">
+  {% if book.cover_url %}
+    <img src="{{ book.cover_url }}" alt="Cover of {{ book.title }}" loading="lazy">
+  {% else %}
+    <div class="cover-art">
+      <span class="cover-title">{{ book.title }}</span>
+      <span class="cover-rule"></span>
+      <span class="cover-author">{{ book.author }}</span>
+    </div>
+  {% endif %}
+</div>
+{%- endmacro %}
+
+{% macro stars(rating) -%}
+<span class="stars" aria-label="{{ rating }} out of 5 stars">
+  {%- for i in range(1, 6) -%}
+    <svg viewBox="0 0 20 20" class="{{ 'on' if i <= rating else 'off' }}" aria-hidden="true"><path d="M10 1.5l2.6 5.3 5.9.9-4.2 4.1 1 5.8L10 14.9l-5.3 2.7 1-5.8L1.5 7.7l5.9-.9z"/></svg>
+  {%- endfor -%}
+</span>
+{%- endmacro %}

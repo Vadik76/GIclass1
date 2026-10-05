@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Your basket{% endblock %}
+
+{% block content %}
+<section class="cart-page">
+  <a class="back-link" href="/#groceries"><span aria-hidden="true">←</span> Back to groceries</a>
+  <div class="cart-heading">
+    <div>
+      <p class="eyebrow">Your good finds</p>
+      <h1>Your basket<span class="heading-period">.</span></h1>
+    </div>
+    {% if items %}
+    <form action="/cart/clear" method="post">
+      <button class="clear-button" type="submit">Clear basket</button>
+    </form>
+    {% endif %}
+  </div>
+
+  {% if added %}<p class="added-message" role="status"><span aria-hidden="true">✓</span> Added to your basket</p>{% endif %}
+
+  {% if items %}
+  <div class="cart-layout">
+    <div class="cart-items" aria-label="Basket items">
+      {% for item in items %}
+      <article class="cart-item">
+        <img class="cart-item-image" src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy">
+        <div class="cart-item-info">
+          <p class="cart-item-category">{{ item.category }}</p>
+          <h2>{{ item.name }}</h2>
+          <p class="cart-item-unit">{{ item.unit }} · ${{ "%.2f"|format(item.price_cents / 100) }}</p>
+          <form class="quantity-control" action="/cart/items/{{ item.product_id }}" method="post" aria-label="Change quantity of {{ item.name }}">
+            <button type="submit" name="quantity" value="{{ item.quantity - 1 }}" aria-label="Remove one {{ item.name }}">−</button>
+            <span>{{ item.quantity }}</span>
+            <button type="submit" name="quantity" value="{{ item.quantity + 1 }}" aria-label="Add one {{ item.name }}" {{ 'disabled' if item.quantity >= 99 }}>+</button>
+          </form>
+        </div>
+        <p class="cart-line-total">${{ "%.2f"|format(item.line_total_cents / 100) }}</p>
+        <form class="remove-form" action="/cart/items/{{ item.product_id }}" method="post">
+          <button type="submit" name="quantity" value="0" aria-label="Remove {{ item.name }} from basket" title="Remove item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>
+          </button>
+        </form>
+      </article>
+      {% endfor %}
+    </div>
+
+    <aside class="order-summary">
+      <p class="eyebrow">A good little total</p>
+      <h2>Basket summary</h2>
+      <div class="summary-row"><span>Items</span><span>{{ cart_count }}</span></div>
+      <div class="summary-row summary-total"><span>Subtotal</span><strong>${{ "%.2f"|format(subtotal / 100) }}</strong></div>
+      <p class="summary-note">Taxes and any delivery details are sorted separately.</p>
+      <a href="/#groceries" class="summary-button">Keep shopping <span aria-hidden="true">→</span></a>
+    </aside>
+  </div>
+  {% else %}
+  <div class="empty-basket">
+    <div class="empty-mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M12 22h40l-3 34H15l-3-34Z"/><path d="M23 24V15a9 9 0 0 1 18 0v9"/><path d="M25 38c4 5 10 5 14 0"/></svg>
+    </div>
+    <p class="eyebrow">Room for something good</p>
+    <h2>Your basket is taking a breather.</h2>
+    <p>Pick out a few fresh favorites and they'll be waiting here.</p>
+    <a class="summary-button" href="/#groceries">Browse groceries <span aria-hidden="true">→</span></a>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}
