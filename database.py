@@ -93,15 +93,10 @@ def init_db() -> None:
             if "cart_id" not in columns:
                 connection.execute("ALTER TABLE cart_items RENAME TO legacy_cart_items")
         connection.executescript(NEW_CART_SCHEMA)
-        legacy_table = connection.execute(
-            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'legacy_cart_items'"
-        ).fetchone()
-        if legacy_table:
-            connection.execute(
-                "INSERT INTO cart_items (cart_id, product_id, quantity) "
-                "SELECT 'legacy', product_id, quantity FROM legacy_cart_items"
-            )
-            connection.execute("DROP TABLE legacy_cart_items")
+        # The old single shared basket belongs to no particular visitor, so it is
+        # discarded rather than handed to whoever happens to visit first.
+        connection.execute("DROP TABLE IF EXISTS legacy_cart_items")
+        connection.execute("DELETE FROM cart_items WHERE cart_id = 'legacy'")
         product_count = connection.execute("SELECT COUNT(*) FROM products").fetchone()[0]
         if product_count == 0:
             connection.executemany(

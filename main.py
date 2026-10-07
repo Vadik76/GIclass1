@@ -8,7 +8,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from database import get_db, init_db
+from database import get_connection, get_db, init_db
 
 BASE_DIR = Path(__file__).parent
 
@@ -30,10 +30,7 @@ def get_cart_id(request: Request, db: sqlite3.Connection) -> str:
     cart_id = request.cookies.get(CART_COOKIE)
     if cart_id:
         return cart_id
-    cart_id = secrets.token_urlsafe(32)
-    with db:
-        db.execute("UPDATE cart_items SET cart_id = ? WHERE cart_id = 'legacy'", (cart_id,))
-    return cart_id
+    return secrets.token_urlsafe(32)
 
 
 def set_cart_cookie(response, request: Request, cart_id: str):
@@ -162,5 +159,13 @@ def clear_cart(request: Request, db: sqlite3.Connection = Depends(get_db)):
 
 
 @app.exception_handler(404)
-async def not_found(request: Request, exc: HTTPException):
-    return templates.TemplateResponse(request, "404.html", {}, status_code=404)
+def not_found(request: Request, exc: HTTPException):
+    cart_id = request.cookies.get(CART_COOKIE)
+    count = 0
+    if cart_id:
+        db = get_connection()
+        try:
+            count = cart_count(db, cart_id)
+        finally:
+            db.close()
+    return templates.TemplateResponse(request, "404.html", {"cart_count": count}, status_code=404)

@@ -2,10 +2,15 @@
 {% block title %}Not found{% endblock %}
 
 {% block content %}
-<section class="empty">
-  <div class="empty-icon">🔖</div>
-  <h2>This page isn't on the shelf</h2>
-  <p>The book may have been deleted, or the link is wrong.</p>
-  <a href="/" class="btn btn-primary">Back to library</a>
+<section class="cart-page">
+  <div class="empty-basket">
+    <div class="empty-mark" aria-hidden="true">
+      <svg viewBox="0 0 64 64"><path d="M12 22h40l-3 34H15l-3-34Z"/><path d="M23 24V15a9 9 0 0 1 18 0v9"/><path d="M30 34h4M32 44v.5"/></svg>
+    </div>
+    <p class="eyebrow">Page not found</p>
+    <h2>We couldn't find that aisle.</h2>
+    <p>The product may no longer be stocked, or the link is wrong.</p>
+    <a class="summary-button" href="/#groceries">Browse groceries <span aria-hidden="true">→</span></a>
+  </div>
 </section>
 {% endblock %}
